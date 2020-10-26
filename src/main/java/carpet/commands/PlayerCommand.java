@@ -59,7 +59,6 @@ public class PlayerCommand
                         .then(makeDropCommand("dropStack", true))
                         .then(makeActionCommand("swapHands", EntityPlayerActionPack.ActionType.SWAP_HANDS))
                         .then(literal("kill").executes(PlayerCommand::kill))
-                        .then(literal("shadow"). executes(PlayerCommand::shadow))
                         .then(literal("mount").executes(manipulation(ap -> ap.mount(true)))
                                 .then(literal("anything").executes(manipulation(ap -> ap.mount(false)))))
                         .then(literal("dismount").executes(manipulation(EntityPlayerActionPack::dismount)))
@@ -297,25 +296,5 @@ public class PlayerCommand
     private static int action(CommandContext<ServerCommandSource> context, EntityPlayerActionPack.ActionType type, EntityPlayerActionPack.Action action)
     {
         return manipulate(context, ap -> ap.start(type, action));
-    }
-
-    private static int shadow(CommandContext<ServerCommandSource> context)
-    {
-        ServerPlayerEntity player = getPlayer(context);
-        if (player instanceof EntityPlayerMPFake)
-        {
-            Messenger.m(context.getSource(), "r Cannot shadow fake players");
-            return 0;
-        }
-        ServerPlayerEntity sendingPlayer = null;
-        try
-        {
-            sendingPlayer = context.getSource().getPlayer();
-        }
-        catch (CommandSyntaxException ignored) { }
-
-        if (sendingPlayer!=player && cantManipulate(context)) return 0;
-        EntityPlayerMPFake.createShadow(player.server, player);
-        return 1;
     }
 }
